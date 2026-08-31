@@ -640,13 +640,20 @@ class EditorState extends State<Editor> {
   }
 
   void onDrawEnd(ScaleEndDetails details) {
+    if (dragPageIndex == null) return;
     final page = coreInfo.pages[dragPageIndex!];
     bool shouldSave = true;
+    final isZoomOrPanCancellation = details.pointerCount >= 2 || lastSeenPointerCount >= 2;
     setState(() {
       if (currentTool is Pen) {
         final newStroke = (currentTool as Pen).onDragEnd();
         if (newStroke == null) return;
         if (newStroke.isEmpty) return;
+
+        if (isZoomOrPanCancellation) {
+          // Reject stroke created during pinch zoom or multi-pointer pan transition
+          return;
+        }
 
         if (stows.autoStraightenLines.value &&
             currentTool is! ShapePen &&

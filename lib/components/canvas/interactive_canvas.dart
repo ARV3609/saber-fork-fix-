@@ -766,6 +766,17 @@ class _InteractiveCanvasViewerState extends State<InteractiveCanvasViewer>
     } else {
       _gestureType ??= _getGestureType(details);
     }
+    if (isCurrentGestureADrawGesture &&
+        (details.pointerCount >= 2 || _gestureType == _GestureType.scale)) {
+      isCurrentGestureADrawGesture = false;
+      widget.onDrawEnd?.call(
+        ScaleEndDetails(
+          velocity: Velocity.zero,
+          pointerCount: details.pointerCount,
+        ),
+      );
+    }
+
     if (!_gestureIsSupported(_gestureType) && !isCurrentGestureADrawGesture) {
       return;
     }
